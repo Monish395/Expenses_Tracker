@@ -4,7 +4,7 @@ import { Pencil, Trash2, Divide } from "lucide-react";
 import ExpenseForm from "./ExpenseForm";
 import SplitExpense from "./SplitExpense";
 import Modal from "../../components/Modal";
-import { calculateExpense } from "../../utils/CalculateExpense";
+import { calculateExpense } from "../../utils/calculateExpense";
 import API from "../../services/API";
 
 function GroupExpenses({ groupMembers, groupId, onExpensesChange }) {
