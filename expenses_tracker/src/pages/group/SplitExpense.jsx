@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Calculator, Users, DollarSign, AlertCircle } from "lucide-react";
-import { calculateExpense } from "../../utils/CalculateExpense";
+import { calculateExpense } from "../../utils/calculateExpense";
 
 function SplitExpense({ selectedExpense, onSave, onCancel }) {
   if (!selectedExpense) return null;
@@ -8,14 +8,14 @@ function SplitExpense({ selectedExpense, onSave, onCancel }) {
   const participants = useMemo(
     () =>
       (selectedExpense.participants || []).map((p) =>
-        typeof p === "string" ? p : p.username ?? String(p)
+        typeof p === "string" ? p : (p.username ?? String(p)),
       ),
-    [selectedExpense.participants]
+    [selectedExpense.participants],
   );
 
   const total = useMemo(
     () => parseFloat(selectedExpense.amount) || 0,
-    [selectedExpense.amount]
+    [selectedExpense.amount],
   );
 
   const [mode, setMode] = useState("equal");
@@ -38,7 +38,7 @@ function SplitExpense({ selectedExpense, onSave, onCancel }) {
   const { allocated, remaining } = useMemo(() => {
     const allocatedSum = Object.values(splits).reduce(
       (sum, val) => sum + (parseFloat(val) || 0),
-      0
+      0,
     );
     return {
       allocated: +allocatedSum.toFixed(2),
@@ -55,7 +55,7 @@ function SplitExpense({ selectedExpense, onSave, onCancel }) {
     if (mode === "custom" && Math.abs(remaining) > 0.01) {
       setErrors({
         general: `Total must equal ₹${total.toFixed(
-          2
+          2,
         )}, but current total is ₹${allocated.toFixed(2)}`,
       });
       return;
@@ -127,8 +127,8 @@ function SplitExpense({ selectedExpense, onSave, onCancel }) {
                     remaining === 0
                       ? "text-green-600"
                       : remaining > 0
-                      ? "text-orange-600"
-                      : "text-red-600"
+                        ? "text-orange-600"
+                        : "text-red-600"
                   }`}
                 >
                   ₹{remaining.toFixed(2)}
