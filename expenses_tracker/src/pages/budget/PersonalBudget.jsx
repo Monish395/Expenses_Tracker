@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import NavSidebar from "../../components/NavSidebar";
-import API from "../../services/api";
+import API from "../../services/API";
 import {
   LineChart,
   Line,
@@ -147,11 +147,11 @@ function PersonalBudget() {
     ? budgetData.interval === "weekly"
       ? 7
       : budgetData.interval === "monthly"
-      ? 30
-      : 365
+        ? 30
+        : 365
     : 1;
   const dailyAvg = (daysInPeriod > 0 ? totalSpent / daysInPeriod : 0).toFixed(
-    2
+    2,
   );
   const dailyRecommended = (
     daysInPeriod > 0 ? budgetData.amount / daysInPeriod : 0

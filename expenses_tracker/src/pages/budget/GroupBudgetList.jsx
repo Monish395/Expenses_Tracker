@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import NavSidebar from "../../components/NavSidebar";
-import API from "../../services/api";
+import API from "../../services/API";
 
 function GroupBudgetList() {
   const [groups, setGroups] = useState([]);

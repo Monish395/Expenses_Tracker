@@ -5,7 +5,7 @@ import ExpenseForm from "./ExpenseForm";
 import SplitExpense from "./SplitExpense";
 import Modal from "../../components/Modal";
 import { calculateExpense } from "../../utils/CalculateExpense";
-import API from "../../services/api";
+import API from "../../services/API";
 
 function GroupExpenses({ groupMembers, groupId, onExpensesChange }) {
   // const [expenses, setExpenses] = useState(() => {
@@ -88,7 +88,7 @@ function GroupExpenses({ groupMembers, groupId, onExpensesChange }) {
   const updateExpense = async (updatedExpense) => {
     const { splits, netBalances, settlements } = calculateExpense(
       updatedExpense,
-      updatedExpense.splits
+      updatedExpense.splits,
     );
     const payload = { ...updatedExpense, splits, netBalances, settlements };
     console.log("PATCH payload:", payload);
@@ -317,7 +317,7 @@ function GroupExpenses({ groupMembers, groupId, onExpensesChange }) {
               <span className="font-semibold">Date:</span>{" "}
               {selectedExpense.createdAt
                 ? new Date(selectedExpense.createdAt).toLocaleDateString(
-                    "en-GB"
+                    "en-GB",
                   )
                 : "Not specified"}
             </p>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import NavSidebar from "../../components/NavSidebar";
-import API from "../../services/api";
+import API from "../../services/API";
 
 import {
   LineChart,
@@ -60,7 +60,7 @@ function GroupBudget() {
 
   const totalSpent = groupExpenses.reduce(
     (sum, e) => sum + Number(e.amount || 0),
-    0
+    0,
   );
   const remaining = budgetData
     ? (budgetData.amount - totalSpent).toFixed(2)
@@ -73,8 +73,8 @@ function GroupBudget() {
     ? budgetData.interval === "weekly"
       ? 7
       : budgetData.interval === "monthly"
-      ? 30
-      : 365
+        ? 30
+        : 365
     : 1;
 
   const dailyAvg = (totalSpent / daysInPeriod).toFixed(2);
@@ -107,7 +107,7 @@ function GroupBudget() {
       startDate = new Date(
         today.getFullYear(),
         today.getMonth(),
-        today.getDate() - 6
+        today.getDate() - 6,
       );
     } else if (budgetData.interval === "monthly") {
       startDate = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -274,7 +274,7 @@ function GroupBudget() {
                   <span className="font-semibold">
                     {Math.max(
                       Math.floor((budgetData.amount - totalSpent) / dailyAvg),
-                      0
+                      0,
                     )}
                   </span>{" "}
                   more day(s).

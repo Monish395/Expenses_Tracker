@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavSidebar from "../components/NavSidebar";
-import API from "../services/api";
+import API from "../services/API";
 import {
   User,
   PlusCircle,
@@ -67,11 +67,11 @@ function Home() {
 
   const totalPersonal = personalExpenses.reduce(
     (sum, e) => sum + Number(e.amount),
-    0
+    0,
   );
   const totalGroup = groupExpenses.reduce(
     (sum, e) => sum + Number(e.amount),
-    0
+    0,
   );
 
   const recentExpenses = [...personalExpenses, ...groupExpenses]

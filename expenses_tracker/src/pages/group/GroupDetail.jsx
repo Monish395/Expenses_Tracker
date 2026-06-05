@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import GroupExpenses from "./GroupExpenses";
 import GroupMembers from "./GroupMembers";
-import API from "../../services/api";
+import API from "../../services/API";
 
 const TABS = [
   { key: "expenses", label: "Expenses" },
@@ -145,7 +145,7 @@ function GroupDetail() {
                               ([person, share]) => {
                                 if (memberTotals[person])
                                   memberTotals[person].owed += share;
-                              }
+                              },
                             );
                           }
                         });
@@ -156,7 +156,7 @@ function GroupDetail() {
                           ({ paid, owed }) => {
                             if (Math.abs(paid - owed) > 0.01)
                               allSettled = false;
-                          }
+                          },
                         );
 
                         return (
@@ -176,14 +176,14 @@ function GroupDetail() {
                                     net > 0
                                       ? "bg-green-50"
                                       : net < 0
-                                      ? "bg-red-50"
-                                      : "bg-yellow-50";
+                                        ? "bg-red-50"
+                                        : "bg-yellow-50";
                                   const textColor =
                                     net > 0
                                       ? "text-green-700"
                                       : net < 0
-                                      ? "text-red-800"
-                                      : "text-yellow-800";
+                                        ? "text-red-800"
+                                        : "text-yellow-800";
 
                                   return (
                                     <div
@@ -217,13 +217,13 @@ function GroupDetail() {
                                       </p>
                                     </div>
                                   );
-                                }
+                                },
                               )}
                             </div>
 
                             {/* Settlements section */}
                             {groupExpenses.some(
-                              (e) => e.settlements?.length > 0
+                              (e) => e.settlements?.length > 0,
                             ) && (
                               <div className="space-y-4 mt-6">
                                 {groupExpenses.map(
@@ -253,7 +253,7 @@ function GroupDetail() {
                                           ))}
                                         </ul>
                                       </div>
-                                    )
+                                    ),
                                 )}
                               </div>
                             )}

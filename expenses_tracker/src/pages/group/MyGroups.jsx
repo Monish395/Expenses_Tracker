@@ -2,7 +2,7 @@ import NavSidebar from "../../components/NavSidebar";
 import { useEffect, useState } from "react";
 import { Users, Eye, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import API from "../../services/api";
+import API from "../../services/API";
 
 function MyGroups() {
   const [groups, setGroups] = useState([]);
@@ -41,8 +41,8 @@ function MyGroups() {
       // Remove the group from the frontend state if user is no longer a member
       setGroups((prevGroups) =>
         prevGroups.filter((g) =>
-          g.members.some((m) => m.username === currentUser.uname)
-        )
+          g.members.some((m) => m.username === currentUser.uname),
+        ),
       );
 
       // Optionally, refetch groups from backend to ensure latest data

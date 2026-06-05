@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import NavSidebar from "../../components/NavSidebar";
-import API from "../../services/api";
+import API from "../../services/API";
 
 // helper to generate group code
 // const generateGroupCode = () => {
@@ -123,7 +123,7 @@ function CreateGroup() {
       const res = await API.post("/groups", payload);
 
       setSuccessMsg(
-        `Group created! Share this code with others: ${res.data.code}`
+        `Group created! Share this code with others: ${res.data.code}`,
       );
       setFormData({
         name: "",
