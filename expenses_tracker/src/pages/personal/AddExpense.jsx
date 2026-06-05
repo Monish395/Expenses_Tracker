@@ -1,6 +1,7 @@
 import { useState } from "react";
 import NavSidebar from "../../components/NavSidebar";
 import axios from "axios";
+import API from "../../services/API";
 
 function Capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -58,7 +59,7 @@ function AddExpense() {
     };
 
     try {
-      await axios.post("http://localhost:5000/expenses/personal", newExpense, {
+      await API.post("/expenses/personal", newExpense, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

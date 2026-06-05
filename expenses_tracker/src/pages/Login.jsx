@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import API from "../services/API";
 
 function Login() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ function Login() {
     const { email, pwd } = userinfo;
     const normalizedEmail = email.toLowerCase();
     try {
-      const response = await axios.post("http://localhost:5000/users/login", {
+      const response = await API.post("/users/login", {
         email: normalizedEmail,
         pwd,
       });

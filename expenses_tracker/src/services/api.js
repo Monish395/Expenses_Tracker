@@ -1,15 +1,3 @@
-// import axios from "axios";
-
-// const API = axios.create({
-//   baseURL: "http://localhost:5000", // change if backend URL is different after deployment
-//   headers: {
-//     "Content-Type": "application/json",
-//     Authorization: `Bearer ${localStorage.getItem("token")}`, // JWT
-//   },
-// });
-
-// export default API;
-
 // src/services/API.js
 import axios from "axios";
 

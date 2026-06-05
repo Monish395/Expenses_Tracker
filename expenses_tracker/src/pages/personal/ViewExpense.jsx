@@ -3,6 +3,7 @@ import NavSidebar from "../../components/NavSidebar";
 import Modal from "../../components/Modal";
 import { Pencil, Trash2, RotateCcw } from "lucide-react";
 import axios from "axios";
+import API from "../../services/API";
 
 function ExpenseRow({ expense, index, onEdit, onDelete }) {
   const [year, month, day] = expense.createdAt.split("-");
@@ -56,7 +57,7 @@ function ViewExpense() {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/expenses/personal", {
+        const res = await API.get("/expenses/personal", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -81,14 +82,14 @@ function ViewExpense() {
   const handleSave = async () => {
     const updatedExpense = { ...formData };
     try {
-      const res = await axios.put(
-        `http://localhost:5000/expenses/personal/${updatedExpense.id}`,
+      const res = await API.put(
+        `/expenses/personal/${updatedExpense.id}`,
         updatedExpense,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
 
       const updatedExpenses = [...expenses];
@@ -112,17 +113,14 @@ function ViewExpense() {
     if (!expenseToDelete) return;
 
     try {
-      await axios.delete(
-        `http://localhost:5000/expenses/personal/${expenseToDelete.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await API.delete(`/expenses/personal/${expenseToDelete.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       const updatedExpenses = expenses.filter(
-        (e) => e.id !== expenseToDelete.id
+        (e) => e.id !== expenseToDelete.id,
       );
       setExpenses(updatedExpenses);
       setSelectedExpense(null);
