@@ -9,6 +9,8 @@ lerna-debug.log*
 
 node_modules/
 E:\D_Drive_Files\SE_project\backend\node_modules/
+.env
+backend\.env
 dist
 dist-ssr
 *.local
