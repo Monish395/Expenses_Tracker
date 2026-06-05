@@ -61,7 +61,7 @@ npm run dev
 
 6. Open another terminal, navigate to frontend folder and install dependencies:
 ```
-cd ../frontend
+cd ../expenses_tracker
 npm install
 ```
 
