@@ -12,6 +12,7 @@ import GroupDetail from "./pages/group/GroupDetail";
 import PersonalBudget from "./pages/budget/PersonalBudget";
 import GroupBudget from "./pages/budget/GroupBudget";
 import GroupBudgetList from "./pages/budget/GroupBudgetList";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/budget/personal" element={<PersonalBudget />} />
         <Route path="/budget/group" element={<GroupBudgetList />} />
         <Route path="/budget/group/:groupId" element={<GroupBudget />} />
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
       </Routes>
     </Router>
   );
