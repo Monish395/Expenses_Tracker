@@ -66,6 +66,7 @@ passport.use(
         const newUser = new UserModel({
           email: googleEmail,
           uname,
+          googleId: profile.id,
           profilePic: googlePic,
           authProvider: "google",
           timestamp: new Date(),
