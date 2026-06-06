@@ -55,10 +55,9 @@ passport.use(
             process.env.JWT_SECRET,
             { expiresIn: "10m" }, // 10 minutes is plenty
           );
-
+          req.pendingToken = pendingToken;
           return done(null, false, {
             message: "account_exists_link_required",
-            pendingToken,
           });
         }
 

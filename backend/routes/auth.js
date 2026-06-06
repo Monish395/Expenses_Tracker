@@ -31,22 +31,28 @@ router.get(
 
 // ── STEP 2: Google redirects back here ───────────────────────────────────────
 router.get("/google/callback", (req, res, next) => {
-  passport.authenticate("google", { session: false }, (err, user, info) => {
-    if (err)
-      return res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
+  passport.authenticate("google", (err, user, info) => {
+    console.log("OAuth callback hit");
+    console.log("err:", err);
+    console.log("user:", user?._id);
+    console.log("info:", info);
+    console.log("req.pendingToken:", req.pendingToken);
 
-    // Email exists locally → tell frontend to offer a "link account" option
+    if (err) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
+    }
+
     if (!user && info?.message === "account_exists_link_required") {
       return res.redirect(
-        `${process.env.CLIENT_URL}/login?error=account_exists&hint=link`,
+        `${process.env.CLIENT_URL}/login?error=account_exists&hint=link&pendingToken=${req.pendingToken}`,
       );
     }
 
-    if (!user)
+    if (!user) {
       return res.redirect(`${process.env.CLIENT_URL}/login?error=oauth_failed`);
+    }
 
     const token = generateToken(user);
-    // Send token to frontend via URL param — frontend reads it and stores in localStorage
     res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
   })(req, res, next);
 });
@@ -54,15 +60,26 @@ router.get("/google/callback", (req, res, next) => {
 // ── Link Google to existing local account (user must be logged in) ────────────
 router.get(
   "/google/link",
-  verifyToken, // must be logged in
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-    session: false,
-  }),
+  verifyToken,
+  passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
+router.get("/google/link/callback", verifyToken, (req, res, next) => {
+  passport.authenticate("google", (err, user, info) => {
+    if (err || !user) {
+      return res.redirect(
+        `${process.env.CLIENT_URL}/settings?error=link_failed`,
+      );
+    }
+    const token = generateToken(user);
+    res.redirect(
+      `${process.env.CLIENT_URL}/settings?linked=true&token=${token}`,
+    );
+  })(req, res, next);
+});
+
 // ── Link Google to local account using password verification ─────────────────
-router.post("/auth/google/link-by-password", async (req, res) => {
+router.post("/google/link-by-password", async (req, res) => {
   const { password, pendingToken } = req.body;
 
   if (!password || !pendingToken) {
@@ -70,7 +87,6 @@ router.post("/auth/google/link-by-password", async (req, res) => {
   }
 
   try {
-    // Verify the pendingToken — this proves it came from our backend
     let payload;
     try {
       payload = jwt.verify(pendingToken, process.env.JWT_SECRET);
@@ -105,61 +121,22 @@ router.post("/auth/google/link-by-password", async (req, res) => {
     if (!user.profilePic && profilePic) user.profilePic = profilePic;
     await user.save();
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email, uname: user.uname },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" },
-    );
+    const token = generateToken(user);
 
     res.json({
       message: "Google account linked successfully",
       token,
-      user: {
-        email: user.email,
-        uname: user.uname,
-        phone_no: user.phone_no,
-        profilePic: user.profilePic,
-        authProvider: user.authProvider,
-        timestamp: user.timestamp,
-      },
+      user: buildUserPayload(user),
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-router.get("/google/callback", (req, res, next) => {
-  passport.authenticate("google", { session: false }, (err, user, info) => {
-    // Add this temporarily to see what info contains
-    console.log("OAuth callback info:", info);
-    console.log("OAuth callback user:", user);
-
-    if (err) {
-      return res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
-    }
-
-    if (!user && info?.message === "account_exists_link_required") {
-      // Pass the pendingToken in the URL instead of relying on session
-      return res.redirect(
-        `${process.env.CLIENT_URL}/login?error=account_exists&hint=link&pendingToken=${info.pendingToken}`,
-      );
-    }
-
-    if (!user) {
-      return res.redirect(`${process.env.CLIENT_URL}/login?error=oauth_failed`);
-    }
-
-    const token = generateToken(user);
-    res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
-  })(req, res, next);
-});
-
-// ── Get current user profile (used after OAuth redirect) ─────────────────────
+// ── Get current user profile ──────────────────────────────────────────────────
 router.get("/me", verifyToken, async (req, res) => {
   try {
-    const user = await (
-      await import("../models/UserModel.js")
-    ).default.findById(req.user.id);
+    const user = await UserModel.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ user: buildUserPayload(user) });
   } catch (err) {
