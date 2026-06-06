@@ -75,11 +75,9 @@ router.post("/auth/google/link-by-password", async (req, res) => {
     try {
       payload = jwt.verify(pendingToken, process.env.JWT_SECRET);
     } catch {
-      return res
-        .status(400)
-        .json({
-          message: "Link session expired. Please try Google sign-in again.",
-        });
+      return res.status(400).json({
+        message: "Link session expired. Please try Google sign-in again.",
+      });
     }
 
     const { googleId, profilePic, email } = payload;
@@ -132,6 +130,10 @@ router.post("/auth/google/link-by-password", async (req, res) => {
 
 router.get("/google/callback", (req, res, next) => {
   passport.authenticate("google", { session: false }, (err, user, info) => {
+    // Add this temporarily to see what info contains
+    console.log("OAuth callback info:", info);
+    console.log("OAuth callback user:", user);
+
     if (err) {
       return res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
     }
