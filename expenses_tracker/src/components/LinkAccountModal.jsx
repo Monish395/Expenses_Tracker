@@ -19,7 +19,7 @@ function LinkAccountModal({ pendingLink, onSuccess, onClose }) {
       const res = await API.post("/auth/google/link-by-password", {
         email: pendingLink.email,
         password,
-        googleId: pendingLink.googleId,
+        pendingToken: pendingLink.pendingToken,
         profilePic: pendingLink.profilePic,
       });
 

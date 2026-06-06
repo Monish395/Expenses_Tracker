@@ -1,4 +1,5 @@
 import passport from "passport";
+import jwt from "jsonwebtoken";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import UserModel from "../models/UserModel.js";
 
@@ -44,18 +45,20 @@ passport.use(
         // Case 3 — email exists locally, need password to link
         const existingByEmail = await UserModel.findOne({ email: googleEmail });
         if (existingByEmail) {
-          // Store Google profile in session so frontend can retrieve it after redirect
-          req.session.pendingGoogleLink = {
-            googleId: profile.id,
-            profilePic: googlePic,
-            email: googleEmail,
-          };
+          // Encode Google profile as a short-lived JWT instead of storing in session
+          const pendingToken = jwt.sign(
+            {
+              googleId: profile.id,
+              profilePic: googlePic,
+              email: googleEmail,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: "10m" }, // 10 minutes is plenty
+          );
 
-          req.session.save((err) => {
-            if (err) return done(err);
-            return done(null, false, {
-              message: "account_exists_link_required",
-            });
+          return done(null, false, {
+            message: "account_exists_link_required",
+            pendingToken,
           });
         }
 

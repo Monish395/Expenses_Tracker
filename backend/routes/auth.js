@@ -62,18 +62,29 @@ router.get(
 );
 
 // ── Link Google to local account using password verification ─────────────────
-router.post("/google/link-by-password", async (req, res) => {
-  const { email, password, googleId, profilePic } = req.body;
+router.post("/auth/google/link-by-password", async (req, res) => {
+  const { password, pendingToken } = req.body;
 
-  if (!email || !password || !googleId) {
-    return res
-      .status(400)
-      .json({ message: "Email, password and googleId are required" });
+  if (!password || !pendingToken) {
+    return res.status(400).json({ message: "Password and token are required" });
   }
 
   try {
-    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    // Verify the pendingToken — this proves it came from our backend
+    let payload;
+    try {
+      payload = jwt.verify(pendingToken, process.env.JWT_SECRET);
+    } catch {
+      return res
+        .status(400)
+        .json({
+          message: "Link session expired. Please try Google sign-in again.",
+        });
+    }
 
+    const { googleId, profilePic, email } = payload;
+
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res
         .status(404)
@@ -86,13 +97,11 @@ router.post("/google/link-by-password", async (req, res) => {
         .json({ message: "This account already uses Google login" });
     }
 
-    // Verify they own the local account
     const isMatch = await bcrypt.compare(password, user.pwd);
     if (!isMatch) {
       return res.status(401).json({ message: "Incorrect password" });
     }
 
-    // Link the Google account
     user.googleId = googleId;
     user.authProvider = "both";
     if (!user.profilePic && profilePic) user.profilePic = profilePic;
@@ -121,26 +130,25 @@ router.post("/google/link-by-password", async (req, res) => {
   }
 });
 
-// Frontend calls this after redirect to get the pending Google profile
-router.get("/google/pending-link", (req, res) => {
-  const pending = req.session.pendingGoogleLink;
-  if (!pending) {
-    return res.status(404).json({ message: "No pending link session found" });
-  }
-  res.json(pending); // { googleId, profilePic, email }
-});
-
-router.get("/google/link/callback", verifyToken, (req, res, next) => {
+router.get("/google/callback", (req, res, next) => {
   passport.authenticate("google", { session: false }, (err, user, info) => {
-    if (err || !user) {
+    if (err) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
+    }
+
+    if (!user && info?.message === "account_exists_link_required") {
+      // Pass the pendingToken in the URL instead of relying on session
       return res.redirect(
-        `${process.env.CLIENT_URL}/settings?error=link_failed`,
+        `${process.env.CLIENT_URL}/login?error=account_exists&hint=link&pendingToken=${info.pendingToken}`,
       );
     }
+
+    if (!user) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=oauth_failed`);
+    }
+
     const token = generateToken(user);
-    res.redirect(
-      `${process.env.CLIENT_URL}/settings?linked=true&token=${token}`,
-    );
+    res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
   })(req, res, next);
 });
 

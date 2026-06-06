@@ -29,16 +29,22 @@ function Login() {
   useEffect(() => {
     const error = searchParams.get("error");
     const hint = searchParams.get("hint");
+    const pendingToken = searchParams.get("pendingToken");
 
-    if (error === "account_exists" && hint === "link") {
-      // Fetch the pending Google profile stored in the backend session
-      API.get("/auth/google/pending-link", { withCredentials: true })
-        .then((res) => setPendingLink(res.data))
-        .catch(() =>
-          setOauthError(
-            "A local account with that email exists. Log in with your password instead.",
-          ),
-        );
+    if (error === "account_exists" && hint === "link" && pendingToken) {
+      // Decode the pendingToken — it's a JWT, we just need the payload
+      // No need to verify signature on frontend, backend will verify on link-by-password
+      try {
+        const payload = JSON.parse(atob(pendingToken.split(".")[1]));
+        setPendingLink({
+          googleId: payload.googleId,
+          profilePic: payload.profilePic,
+          email: payload.email,
+          pendingToken, // pass the raw token to the modal too
+        });
+      } catch {
+        setOauthError("Something went wrong with Google sign-in. Try again.");
+      }
     } else if (error === "oauth_failed") {
       setOauthError("Google sign-in failed. Please try again.");
     } else if (error === "server_error") {

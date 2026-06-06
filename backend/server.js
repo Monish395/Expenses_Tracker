@@ -5,7 +5,6 @@ import mongoose from "mongoose";
 import cors from "cors";
 import session from "express-session";
 import passport from "./config/passport.js";
-import MongoStore from "connect-mongo";
 
 import expensesRoutes from "./routes/expenses.js";
 import usersRoutes from "./routes/users.js";
@@ -30,10 +29,6 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI, // reuses your existing Atlas connection
-      ttl: 5 * 60, // session expires in 5 minutes
-    }),
     cookie: { secure: true, sameSite: "none", maxAge: 5 * 60 * 1000 }, // 5 min expiration since we only use this for temporary OAuth linking data
   }),
 );
@@ -48,7 +43,7 @@ mongoose
 
 app.get("/", (req, res) => res.send("Expenses Tracker API is running"));
 
-app.use("/auth", authRoutes); // ← new
+app.use("/auth", authRoutes);
 app.use("/expenses", expensesRoutes);
 app.use("/users", usersRoutes);
 app.use("/groups", groupRoutes);
