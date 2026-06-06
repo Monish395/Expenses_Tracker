@@ -50,7 +50,13 @@ passport.use(
             profilePic: googlePic,
             email: googleEmail,
           };
-          return done(null, false, { message: "account_exists_link_required" });
+
+          req.session.save((err) => {
+            if (err) return done(err);
+            return done(null, false, {
+              message: "account_exists_link_required",
+            });
+          });
         }
 
         // Case 4: Brand new user → create account
