@@ -144,6 +144,62 @@ router.patch("/change-password", verifyToken, async (req, res) => {
   }
 });
 
+// PATCH /users/update-profile
+router.patch("/update-profile", verifyToken, async (req, res) => {
+  try {
+    const { uname, phone_no } = req.body;
+
+    if (!uname?.trim()) {
+      return res.status(400).json({ message: "Name cannot be empty" });
+    }
+    if (phone_no && !/^\d{10}$/.test(phone_no)) {
+      return res.status(400).json({ message: "Phone must be 10 digits" });
+    }
+
+    // Check if new uname is taken by someone else
+    const existing = await UserModel.findOne({ uname });
+    if (existing && existing._id.toString() !== req.user.id) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+
+    const user = await UserModel.findByIdAndUpdate(
+      req.user.id,
+      { uname, phone_no },
+      { new: true },
+    );
+
+    res.json({ user: { uname: user.uname, phone_no: user.phone_no } });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// PATCH /users/update-profile-pic
+router.patch("/update-profile-pic", verifyToken, async (req, res) => {
+  try {
+    const { profilePic } = req.body;
+
+    if (!profilePic) {
+      return res.status(400).json({ message: "No image provided" });
+    }
+
+    // Basic validation — must be a base64 image string
+    if (!profilePic.startsWith("data:image/")) {
+      return res.status(400).json({ message: "Invalid image format" });
+    }
+
+    const user = await UserModel.findByIdAndUpdate(
+      req.user.id,
+      { profilePic },
+      { new: true },
+    );
+
+    res.json({ profilePic: user.profilePic });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // DELETE /users/delete
 router.delete("/delete", verifyToken, async (req, res) => {
   try {

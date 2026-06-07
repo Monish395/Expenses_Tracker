@@ -58,23 +58,74 @@ router.get("/google/callback", (req, res, next) => {
 });
 
 // ── Link Google to existing local account (user must be logged in) ────────────
-router.get(
-  "/google/link",
-  verifyToken,
-  passport.authenticate("google", { scope: ["profile", "email"] }),
-);
+router.get("/google/link", (req, res) => {
+  const token = req.query.token; // frontend passes token as query param
+  if (!token) {
+    return res.redirect(`${process.env.CLIENT_URL}/profile?error=link_failed`);
+  }
 
-router.get("/google/link/callback", verifyToken, (req, res, next) => {
+  // Pass token as OAuth state — Google will echo it back in the callback
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    state: token,
+  })(req, res);
+});
+
+router.get("/google/link/callback", (req, res, next) => {
+  const token = req.query.state; // JWT echoed back by Google
+
+  if (!token) {
+    return res.redirect(`${process.env.CLIENT_URL}/profile?error=link_failed`);
+  }
+
+  // Verify the token manually here
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    return res.redirect(`${process.env.CLIENT_URL}/profile?error=link_failed`);
+  }
+
   passport.authenticate("google", (err, user, info) => {
     if (err || !user) {
       return res.redirect(
-        `${process.env.CLIENT_URL}/settings?error=link_failed`,
+        `${process.env.CLIENT_URL}/profile?error=link_failed`,
       );
     }
-    const token = generateToken(user);
-    res.redirect(
-      `${process.env.CLIENT_URL}/settings?linked=true&token=${token}`,
-    );
+
+    // user here is the Google profile returned by passport
+    // We need to link it to the LOCAL user identified by decoded.id
+    UserModel.findById(decoded.id)
+      .then(async (localUser) => {
+        if (!localUser) {
+          return res.redirect(
+            `${process.env.CLIENT_URL}/profile?error=link_failed`,
+          );
+        }
+
+        if (localUser.googleId) {
+          return res.redirect(
+            `${process.env.CLIENT_URL}/profile?error=already_linked`,
+          );
+        }
+
+        // user._id here is the Google-found user — we don't want that
+        // We want the Google profile data, applied to localUser
+        localUser.googleId = user.googleId;
+        localUser.authProvider = "both";
+        if (!localUser.profilePic && user.profilePic) {
+          localUser.profilePic = user.profilePic;
+        }
+        await localUser.save();
+
+        const newToken = generateToken(localUser);
+        res.redirect(
+          `${process.env.CLIENT_URL}/profile?linked=true&token=${newToken}`,
+        );
+      })
+      .catch(() =>
+        res.redirect(`${process.env.CLIENT_URL}/profile?error=link_failed`),
+      );
   })(req, res, next);
 });
 
