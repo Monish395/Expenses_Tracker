@@ -1,5 +1,8 @@
 import express from "express";
 import UserModel from "../models/UserModel.js";
+import ExpenseModel from "../models/ExpenseModel.js";
+import BudgetModel from "../models/BudgetModel.js";
+import GroupModel from "../models/GroupModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import verifyToken from "../middleware/verifyToken.js";
@@ -203,9 +206,111 @@ router.patch("/update-profile-pic", verifyToken, async (req, res) => {
 // DELETE /users/delete
 router.delete("/delete", verifyToken, async (req, res) => {
   try {
-    const deletedUser = await UserModel.findByIdAndDelete(req.user.id);
-    if (!deletedUser)
-      return res.status(404).json({ message: "User not found" });
+    const user = await UserModel.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const uname = user.uname; // adjust field name if different (e.g. user.username)
+    const ANON = "Deleted User";
+
+    // 1. Hard delete personal expenses
+    await ExpenseModel.deleteMany({ user: uname });
+
+    // 2. Hard delete personal budgets
+    await BudgetModel.deleteMany({ userId: user._id });
+
+    // 3. Process groups the user belongs to
+    const groups = await GroupModel.find({ "members.username": uname });
+
+    for (const group of groups) {
+      const remainingMembers = group.members.filter(
+        (m) => m.username !== uname,
+      );
+
+      if (remainingMembers.length === 0) {
+        // Group becomes empty -> delete group + its expenses + its budget
+        await ExpenseModel.deleteMany({ groupId: group.id });
+        await BudgetModel.deleteOne({ groupId: group.id });
+        await GroupModel.deleteOne({ _id: group._id });
+        continue;
+      }
+
+      // Reassign ownership if creator/admin is leaving and others remain
+      const wasCreator = group.createdBy === uname;
+      const leavingMember = group.members.find((m) => m.username === uname);
+      const wasAdmin = leavingMember?.role === "admin";
+
+      if (wasCreator || wasAdmin) {
+        // Promote an existing admin, else promote the first remaining member
+        let newOwner = remainingMembers.find((m) => m.role === "admin");
+        if (!newOwner) {
+          newOwner = remainingMembers[0];
+          newOwner.role = "admin";
+        }
+        if (wasCreator) {
+          group.createdBy = newOwner.username;
+        }
+      }
+
+      group.members = remainingMembers;
+      await group.save();
+
+      // Anonymize this user's identifier in this group's expenses
+      const groupExpenses = await ExpenseModel.find({ groupId: group.id });
+
+      for (const exp of groupExpenses) {
+        let modified = false;
+
+        // participants
+        if (exp.participants.includes(uname)) {
+          exp.participants = exp.participants.map((p) =>
+            p === uname ? ANON : p,
+          );
+          modified = true;
+        }
+
+        // payers
+        exp.payers.forEach((p) => {
+          if (p.name === uname) {
+            p.name = ANON;
+            modified = true;
+          }
+        });
+
+        // splits (Map: user -> share)
+        if (exp.splits.has(uname)) {
+          const val = exp.splits.get(uname);
+          exp.splits.delete(uname);
+          // Merge into existing "Deleted User" entry if present, else set
+          exp.splits.set(ANON, (exp.splits.get(ANON) || 0) + val);
+          modified = true;
+        }
+
+        // netBalances (Map: user -> balance)
+        if (exp.netBalances.has(uname)) {
+          const val = exp.netBalances.get(uname);
+          exp.netBalances.delete(uname);
+          exp.netBalances.set(ANON, (exp.netBalances.get(ANON) || 0) + val);
+          modified = true;
+        }
+
+        // settlements
+        exp.settlements.forEach((s) => {
+          if (s.from === uname) {
+            s.from = ANON;
+            modified = true;
+          }
+          if (s.to === uname) {
+            s.to = ANON;
+            modified = true;
+          }
+        });
+
+        if (modified) await exp.save();
+      }
+    }
+
+    // 4. Delete user document last
+    await UserModel.findByIdAndDelete(req.user.id);
 
     res.json({ message: "Account deleted successfully" });
   } catch (err) {

@@ -22,6 +22,9 @@ function Profile() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [editLoading, setEditLoading] = useState(false);
   const [linkLoading, setLinkLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const oldPassRef = useRef();
   const newPassRef = useRef();
@@ -132,7 +135,7 @@ function Profile() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm("Are you sure you want to delete your account?")) return;
+    setDeleteLoading(true);
     try {
       const res = await API.delete("/users/delete");
       alert(res.data.message);
@@ -141,6 +144,8 @@ function Profile() {
       window.location.href = "/login";
     } catch (err) {
       alert(err.response?.data?.message || "Error deleting account");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -381,7 +386,7 @@ function Profile() {
                 removed. This cannot be undone.
               </p>
               <button
-                onClick={handleDeleteAccount}
+                onClick={() => setShowDeleteModal(true)}
                 className="px-4 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
               >
                 Delete Account
@@ -580,6 +585,101 @@ function Profile() {
               >
                 <GoogleIcon size={15} />
                 Continue with Google
+              </button>
+            </div>
+          </Modal>
+        )}
+
+        {/* ── Delete Account Modal ─────────────────────────────────────────── */}
+        {showDeleteModal && (
+          <Modal
+            onClose={() => {
+              setShowDeleteModal(false);
+              setDeleteConfirmText("");
+            }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-50 rounded-lg">
+                <svg
+                  className="w-5 h-5 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Delete your account?
+              </h3>
+            </div>
+
+            <div className="text-sm text-gray-600 leading-relaxed space-y-3 mb-5">
+              <p>This action is permanent. Here's exactly what happens:</p>
+
+              <div className="bg-red-50 border border-red-100 rounded-lg p-3 space-y-2">
+                <div className="flex gap-2">
+                  <span className="text-red-500 font-bold shrink-0">✕</span>
+                  <span>
+                    <strong>Permanently deleted:</strong> your personal
+                    expenses, personal budgets, and account profile.
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-amber-500 font-bold shrink-0">!</span>
+                  <span>
+                    <strong>Group expenses stay</strong>, but your name is
+                    replaced with <em>"Deleted User"</em> so other members'
+                    balances and settlements remain accurate.
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-amber-500 font-bold shrink-0">!</span>
+                  <span>
+                    If you're the <strong>owner/admin</strong> of a group with
+                    other members, ownership transfers automatically. Groups
+                    where you're the only member are deleted entirely.
+                  </span>
+                </div>
+              </div>
+
+              <p>
+                Type <strong className="text-gray-900">DELETE</strong> below to
+                confirm.
+              </p>
+            </div>
+
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="Type DELETE to confirm"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-slate-50 mb-5"
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmText("");
+                }}
+                className="px-4 py-2 text-sm rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== "DELETE" || deleteLoading}
+                className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleteLoading ? "Deleting..." : "Permanently delete account"}
               </button>
             </div>
           </Modal>
