@@ -21,7 +21,7 @@ function PersonalBudget() {
   //   return saved || null;
   // });
 
-  const [budgetData, setBudgetData] = useState({});
+  const [budgetData, setBudgetData] = useState(null);
   const [amount, setAmount] = useState("");
   const [interval, setInterval] = useState("weekly");
   const [expenses, setExpenses] = useState([]);
@@ -62,18 +62,6 @@ function PersonalBudget() {
 
   //   setExpenses([...personal, ...groupExp]);
   // }, [username]);
-  useEffect(() => {
-    const fetchUserGroups = async () => {
-      try {
-        const res = await API.get("/groups"); // JWT required
-        setUserGroups(res.data || []); // store groups in state
-      } catch (err) {
-        console.error(err);
-        alert("Failed to fetch groups");
-      }
-    };
-    fetchUserGroups();
-  }, []);
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -95,8 +83,8 @@ function PersonalBudget() {
       }
     };
 
-    if (userGroups.length) fetchExpenses();
-  }, [userGroups]);
+    fetchExpenses();
+  }, []);
 
   const getDateRange = () => {
     const today = new Date();
@@ -154,10 +142,10 @@ function PersonalBudget() {
     2,
   );
   const dailyRecommended = (
-    daysInPeriod > 0 ? budgetData.amount / daysInPeriod : 0
+    budgetData && daysInPeriod > 0 ? budgetData.amount / daysInPeriod : 0
   ).toFixed(2);
   const daysLeft =
-    dailyAvg > 0
+    budgetData && dailyAvg > 0
       ? Math.max(Math.floor((budgetData.amount - totalSpent) / dailyAvg), 0)
       : 0;
 

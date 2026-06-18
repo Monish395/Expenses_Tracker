@@ -1,3 +1,4 @@
+// backend/routes/budget.js
 import express from "express";
 import Budget from "../models/BudgetModel.js";
 import verifyToken from "../middleware/verifyToken.js";
@@ -9,7 +10,7 @@ const router = express.Router();
 // GET personal budget for logged-in user
 router.get("/personal", verifyToken, async (req, res) => {
   try {
-    const budget = await Budget.findOne({ userId: req.user._id });
+    const budget = await Budget.findOne({ userId: req.user.id });
     res.json(budget || null);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -20,7 +21,7 @@ router.get("/personal", verifyToken, async (req, res) => {
 router.post("/personal", verifyToken, async (req, res) => {
   try {
     const { amount, interval } = req.body;
-    let budget = await Budget.findOne({ userId: req.user._id });
+    let budget = await Budget.findOne({ userId: req.user.id });
 
     if (budget) {
       // Update existing
@@ -30,7 +31,7 @@ router.post("/personal", verifyToken, async (req, res) => {
     } else {
       // Create new
       budget = new Budget({
-        userId: req.user._id,
+        userId: req.user.id,
         amount,
         interval,
       });
