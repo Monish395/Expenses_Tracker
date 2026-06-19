@@ -86,8 +86,16 @@ function PersonalBudget() {
     fetchExpenses();
   }, []);
 
+  const toLocalISODate = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
   const getDateRange = () => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // normalize to local midnight
     let start;
     if (budgetData?.interval === "weekly") {
       start = new Date(today);
@@ -97,6 +105,7 @@ function PersonalBudget() {
     } else {
       start = new Date(today.getFullYear(), 0, 1);
     }
+    start.setHours(0, 0, 0, 0);
 
     const dates = [];
     const current = new Date(start);
@@ -117,7 +126,7 @@ function PersonalBudget() {
           cumulative += Number(e.amount || 0);
         }
       });
-      return { date: d.toISOString().split("T")[0], cumulative };
+      return { date: toLocalISODate(d), cumulative };
     });
   })();
 

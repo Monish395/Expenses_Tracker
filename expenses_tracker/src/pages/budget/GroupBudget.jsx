@@ -58,6 +58,13 @@ function GroupBudget() {
     fetchData();
   }, [groupId]);
 
+  const toLocalISODate = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
   const totalSpent = groupExpenses.reduce(
     (sum, e) => sum + Number(e.amount || 0),
     0,
@@ -130,7 +137,7 @@ function GroupBudget() {
           cumulative += Number(e.amount);
         }
       });
-      return { date: d.toISOString().split("T")[0], cumulative };
+      return { date: toLocalISODate(d), cumulative };
     });
   })();
 
