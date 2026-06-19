@@ -35,10 +35,6 @@ function GroupBudget() {
       }
 
       try {
-        // const allGroups = JSON.parse(localStorage.getItem("groups")) || [];
-        // const currentGroup = allGroups.find((g) => g.id === groupId);
-        // setGroup(currentGroup || { name: "Unknown Group", id: groupId });
-
         // Fetch expenses for this group
         const expRes = await API.get(`/expenses/${groupId}`);
         setGroupExpenses(expRes.data || []);
@@ -65,15 +61,55 @@ function GroupBudget() {
     return `${y}-${m}-${d}`;
   };
 
-  const totalSpent = groupExpenses.reduce(
+  // Shared date-range builder — used by both chartData and periodSpent
+  const getDateRange = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let start;
+    if (budgetData?.interval === "weekly") {
+      start = new Date(today);
+      start.setDate(today.getDate() - 6);
+    } else if (budgetData?.interval === "monthly") {
+      start = new Date(today.getFullYear(), today.getMonth(), 1);
+    } else {
+      start = new Date(today.getFullYear(), 0, 1);
+    }
+    start.setHours(0, 0, 0, 0);
+
+    const dates = [];
+    const current = new Date(start);
+    while (current <= today) {
+      dates.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  };
+
+  // All-time total — every expense the group has ever had
+  const allTimeSpent = groupExpenses.reduce(
     (sum, e) => sum + Number(e.amount || 0),
     0,
   );
+
+  // Period-scoped total — only expenses within the current budget interval
+  const periodSpent = (() => {
+    if (!budgetData) return 0;
+    const dates = getDateRange();
+    if (!dates.length) return 0;
+    const periodStart = dates[0];
+    return groupExpenses.reduce((sum, e) => {
+      const expDate = new Date(e.createdAt);
+      expDate.setHours(0, 0, 0, 0);
+      return expDate >= periodStart ? sum + Number(e.amount || 0) : sum;
+    }, 0);
+  })();
+
   const remaining = budgetData
-    ? (budgetData.amount - totalSpent).toFixed(2)
+    ? (budgetData.amount - periodSpent).toFixed(2)
     : 0;
   const progress = budgetData
-    ? Math.min((totalSpent / budgetData.amount) * 100, 100)
+    ? Math.min((periodSpent / budgetData.amount) * 100, 100)
     : 0;
 
   const daysInPeriod = budgetData
@@ -84,7 +120,7 @@ function GroupBudget() {
         : 365
     : 1;
 
-  const dailyAvg = (totalSpent / daysInPeriod).toFixed(2);
+  const dailyAvg = (periodSpent / daysInPeriod).toFixed(2);
   const dailyRecommended = (budgetData?.amount / daysInPeriod).toFixed(2);
 
   // Save or update budget via backend
@@ -107,28 +143,7 @@ function GroupBudget() {
   // Prepare chart data
   const chartData = (() => {
     if (!budgetData) return [];
-
-    const today = new Date();
-    let startDate;
-    if (budgetData.interval === "weekly") {
-      startDate = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate() - 6,
-      );
-    } else if (budgetData.interval === "monthly") {
-      startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-    } else {
-      startDate = new Date(today.getFullYear(), 0, 1);
-    }
-
-    const dates = [];
-    const current = new Date(startDate);
-    while (current <= today) {
-      dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-
+    const dates = getDateRange();
     let cumulative = 0;
     return dates.map((d) => {
       groupExpenses.forEach((e) => {
@@ -216,8 +231,14 @@ function GroupBudget() {
                 {budgetData.amount} / {budgetData.interval}
               </p>
               <p>
-                <span className="font-semibold">Total Spent:</span> ₹
-                {totalSpent.toFixed(2)}
+                <span className="font-semibold">
+                  Spent this {budgetData.interval.replace("ly", "")}:
+                </span>{" "}
+                ₹{periodSpent.toFixed(2)}
+              </p>
+              <p>
+                <span className="font-semibold">Total Spent (all time):</span> ₹
+                {allTimeSpent.toFixed(2)}
               </p>
               <p>
                 <span className="font-semibold">Remaining:</span> ₹{remaining}
@@ -262,11 +283,11 @@ function GroupBudget() {
               </div>
 
               <div className="mt-4 p-4 bg-purple-50 rounded-xl shadow-inner text-purple-900 font-medium">
-                {totalSpent > budgetData.amount ? (
+                {periodSpent > budgetData.amount ? (
                   <p className="text-red-600 font-semibold">
                     ⚠️ You have exceeded your budget!
                   </p>
-                ) : totalSpent / budgetData.amount > 0.8 ? (
+                ) : periodSpent / budgetData.amount > 0.8 ? (
                   <p className="text-yellow-600 font-semibold">
                     🔔 You are close to reaching your budget limit.
                   </p>
@@ -280,7 +301,7 @@ function GroupBudget() {
                   will last for{" "}
                   <span className="font-semibold">
                     {Math.max(
-                      Math.floor((budgetData.amount - totalSpent) / dailyAvg),
+                      Math.floor((budgetData.amount - periodSpent) / dailyAvg),
                       0,
                     )}
                   </span>{" "}

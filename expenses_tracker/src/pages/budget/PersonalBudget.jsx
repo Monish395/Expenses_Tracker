@@ -15,12 +15,6 @@ function PersonalBudget() {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const username = currentUser?.uname;
 
-  // const storageKey = `personalBudget_${username}`;
-  // const [budgetData, setBudgetData] = useState(() => {
-  //   const saved = JSON.parse(localStorage.getItem(storageKey));
-  //   return saved || null;
-  // });
-
   const [budgetData, setBudgetData] = useState(null);
   const [amount, setAmount] = useState("");
   const [interval, setInterval] = useState("weekly");
@@ -28,7 +22,7 @@ function PersonalBudget() {
   const [userGroups, setUserGroups] = useState([]);
   const [personalExpenses, setPersonalExpenses] = useState([]);
   const [groupExpenses, setGroupExpenses] = useState([]);
-  const [editing, setEditing] = useState(false); // <-- edit state
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     const fetchBudget = async () => {
@@ -46,22 +40,18 @@ function PersonalBudget() {
     fetchBudget();
   }, []);
 
-  // useEffect(() => {
-  //   const allExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-
-  //   const personal = allExpenses.filter((e) => e.user === username);
-
-  //   const allGroups = JSON.parse(localStorage.getItem("groups")) || [];
-  //   const userGroupIds = allGroups
-  //     .filter((g) => g.members?.some((m) => m.username === username))
-  //     .map((g) => g.id);
-
-  //   const groupExp = allExpenses
-  //     .filter((e) => e.groupId && userGroupIds.includes(e.groupId))
-  //     .map((e) => ({ ...e, amount: e.splits?.[username] || 0 }));
-
-  //   setExpenses([...personal, ...groupExp]);
-  // }, [username]);
+  useEffect(() => {
+    const fetchUserGroups = async () => {
+      try {
+        const res = await API.get("/groups"); // JWT required
+        setUserGroups(res.data || []);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to fetch groups");
+      }
+    };
+    fetchUserGroups();
+  }, []);
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -95,7 +85,8 @@ function PersonalBudget() {
 
   const getDateRange = () => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // normalize to local midnight
+    today.setHours(0, 0, 0, 0);
+
     let start;
     if (budgetData?.interval === "weekly") {
       start = new Date(today);
@@ -116,6 +107,12 @@ function PersonalBudget() {
     return dates;
   };
 
+  // All-time total — every personal + group-share expense ever recorded
+  const allTimeSpent = expenses.reduce(
+    (sum, e) => sum + Number(e.amount || 0),
+    0,
+  );
+
   const chartData = (() => {
     if (!budgetData) return [];
     const dates = getDateRange();
@@ -130,6 +127,7 @@ function PersonalBudget() {
     });
   })();
 
+  // Period-scoped total — drives remaining/progress/insights, same as before
   const totalSpent = chartData.length
     ? chartData[chartData.length - 1].cumulative
     : 0;
@@ -157,15 +155,6 @@ function PersonalBudget() {
     budgetData && dailyAvg > 0
       ? Math.max(Math.floor((budgetData.amount - totalSpent) / dailyAvg), 0)
       : 0;
-
-  // const handleSetBudget = (e) => {
-  //   e.preventDefault();
-  //   if (!amount) return;
-  //   const data = { amount: Number(amount), interval };
-  //   localStorage.setItem(storageKey, JSON.stringify(data));
-  //   setBudgetData(data);
-  //   setEditing(false); // exit edit mode
-  // };
 
   const handleSetBudget = async (e) => {
     e.preventDefault();
@@ -265,8 +254,14 @@ function PersonalBudget() {
                 {budgetData.amount} / {budgetData.interval}
               </p>
               <p>
-                <span className="font-semibold">Total Spent:</span> ₹
-                {totalSpent.toFixed(2)}
+                <span className="font-semibold">
+                  Spent this {budgetData.interval.replace("ly", "")}:
+                </span>{" "}
+                ₹{totalSpent.toFixed(2)}
+              </p>
+              <p>
+                <span className="font-semibold">Total Spent (all time):</span> ₹
+                {allTimeSpent.toFixed(2)}
               </p>
               <p>
                 <span className="font-semibold">Remaining:</span> ₹{remaining}
