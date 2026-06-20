@@ -98,6 +98,11 @@ function ExpenseCard({ expense, index, onEdit, onDelete }) {
   );
 }
 
+// Newest first. Used everywhere expenses are set into state so the list
+// stays ordered after fetch, edit, and delete — not just on initial load.
+const sortByDateDesc = (list) =>
+  [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
 function ViewExpense() {
   const [expenses, setExpenses] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -115,7 +120,7 @@ function ViewExpense() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        setExpenses(res.data);
+        setExpenses(sortByDateDesc(res.data));
       } catch (err) {
         console.error(err);
         setError("Could not fetch expenses");
@@ -146,7 +151,7 @@ function ViewExpense() {
 
       const updatedExpenses = [...expenses];
       updatedExpenses[editingIndex] = res.data;
-      setExpenses(updatedExpenses);
+      setExpenses(sortByDateDesc(updatedExpenses));
       setEditingIndex(null);
       setSuccess("Expense updated successfully!");
       setError("");

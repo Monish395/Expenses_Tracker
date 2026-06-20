@@ -92,8 +92,13 @@ function GroupExpenses({ groupMembers, groupId, onExpensesChange }) {
   const fetchExpenses = async () => {
     try {
       const res = await API.get(`/expenses/${groupId}`);
-      setExpenses(res.data);
-      if (onExpensesChange) onExpensesChange(res.data);
+      // Newest first. add/edit/delete all call fetchExpenses() afterward,
+      // so sorting here keeps the list ordered through every path.
+      const sorted = [...res.data].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+      );
+      setExpenses(sorted);
+      if (onExpensesChange) onExpensesChange(sorted);
     } catch (err) {
       console.error(err);
       alert("Failed to load expenses");
