@@ -1,4 +1,4 @@
-import NavSidebar from "../../components/NavSidebar";
+import AppLayout from "../../components/AppLayout";
 import { useEffect, useState } from "react";
 import { Users, Eye, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -55,17 +55,13 @@ function MyGroups() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-200">
-      <div className="fixed top-0 left-0 h-screen">
-        <NavSidebar />
-      </div>
-      <main className="flex-1 ml-64 p-10 min-h-screen overflow-y-auto">
+    <AppLayout bgClassName="bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-200">
         {/* Header Section */}
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-emerald-900 mb-2 tracking-tight">
+        <div className="mb-8 sm:mb-10">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emerald-900 mb-2 tracking-tight">
             My Groups
           </h1>
-          <p className="text-emerald-700 text-lg">
+          <p className="text-emerald-700 text-base sm:text-lg">
             Manage your group memberships and collaborations
           </p>
         </div>
@@ -130,8 +126,7 @@ function MyGroups() {
             ))}
           </div>
         )}
-      </main>
-    </div>
+    </AppLayout>
   );
 }
 

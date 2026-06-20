@@ -216,11 +216,11 @@ function ExpenseForm({
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-white">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-5 sm:px-8 py-5 sm:py-6 text-white">
         <div className="flex items-center gap-3">
-          <Receipt className="w-7 h-7" />
-          <div>
-            <h2 className="text-2xl font-bold">
+          <Receipt className="w-7 h-7 shrink-0" />
+          <div className="min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold">
               {mode === "add" ? "Add New Expense" : "Edit Expense"}
             </h2>
             <p className="text-blue-100 text-sm">
@@ -232,7 +232,7 @@ function ExpenseForm({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-8 space-y-8">
+      <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-6 sm:space-y-8">
         <div className="grid md:grid-cols-2 gap-6">
           {/* Title */}
           <div className="md:col-span-2">
@@ -318,11 +318,11 @@ function ExpenseForm({
               <User className="w-4 h-4" />
               Paid By (Total: ₹{totalPaid})
             </label>
-            <div className="flex flex-wrap gap-3 items-center mb-4">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:items-center mb-4">
               <select
                 value={selectedPayer}
                 onChange={(e) => setSelectedPayer(e.target.value)}
-                className="border-2 border-gray-200 rounded-xl px-4 py-2"
+                className="border-2 border-gray-200 rounded-xl px-4 py-2 w-full sm:w-auto"
               >
                 <option value="">Select member</option>
                 {groupMembers.map((m, i) => {
@@ -341,13 +341,13 @@ function ExpenseForm({
                 min="0"
                 value={payerAmount}
                 onChange={(e) => setPayerAmount(e.target.value)}
-                className="border-2 border-gray-200 rounded-xl px-4 py-2 w-32"
+                className="border-2 border-gray-200 rounded-xl px-4 py-2 w-full sm:w-32"
               />
 
               <button
                 type="button"
                 onClick={handleAddPayer}
-                className="px-5 py-2 bg-blue-600 text-white rounded-xl flex items-center gap-2"
+                className="px-5 py-2 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Add
               </button>
@@ -396,13 +396,13 @@ function ExpenseForm({
         </div>
 
         {/* Participants */}
-        <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+        <div className="bg-gray-50 rounded-xl p-4 sm:p-6 space-y-4">
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Users className="w-5 h-5" />
             Participants ({participants.length})
           </label>
 
-          <div className="flex gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <input
               list="participantsList"
               value={newParticipant}
@@ -417,7 +417,7 @@ function ExpenseForm({
             <button
               type="button"
               onClick={handleAddParticipant}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl flex items-center gap-2"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -471,14 +471,14 @@ function ExpenseForm({
         </div>
 
         {/* Actions */}
-        <div className="flex justify-between items-center pt-6 border-t border-gray-200">
-          <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-3">
             {mode === "edit" && (
               <>
                 <button
                   type="button"
                   onClick={handleResetLocal}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-300"
+                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-300"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Reset
@@ -486,7 +486,7 @@ function ExpenseForm({
                 <button
                   type="button"
                   onClick={onDelete}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white"
+                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete
@@ -495,18 +495,18 @@ function ExpenseForm({
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               type="button"
               onClick={onCancel}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-300"
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-300"
             >
               <X className="w-4 h-4" />
               Cancel
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-600 to-green-700 text-white"
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-600 to-green-700 text-white"
             >
               <Save className="w-4 h-4" />
               {mode === "add" ? "Add Expense" : "Save Changes"}

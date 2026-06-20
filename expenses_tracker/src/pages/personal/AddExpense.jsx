@@ -1,6 +1,5 @@
 import { useState } from "react";
-import NavSidebar from "../../components/NavSidebar";
-import axios from "axios";
+import AppLayout from "../../components/AppLayout";
 import API from "../../services/API";
 
 function Capitalize(string) {
@@ -86,18 +85,14 @@ function AddExpense() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-sky-100">
-      <div className="fixed top-0 left-0 h-screen">
-        <NavSidebar />
-      </div>
-      <main className="flex-1 ml-64 p-8 min-h-screen overflow-y-auto">
+    <AppLayout bgClassName="bg-sky-100">
         <div className="flex flex-col items-center">
-          <h2 className="text-4xl font-extrabold text-sky-900 mb-8 tracking-wide">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-sky-900 mb-6 sm:mb-8 tracking-wide text-center">
             Add Expense
           </h2>
 
           {/* Card */}
-          <div className="bg-white/90 shadow-2xl rounded-2xl p-8 w-full max-w-2xl border border-sky-200 backdrop-blur-md">
+          <div className="bg-white/90 shadow-2xl rounded-2xl p-5 sm:p-8 w-full max-w-2xl border border-sky-200 backdrop-blur-md">
             {/* Sub-header */}
             <div className="flex items-center mb-6 gap-3">
               <div className="w-11 h-11 bg-sky-200 rounded-full flex items-center justify-center">
@@ -261,8 +256,7 @@ function AddExpense() {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+    </AppLayout>
   );
 }
 

@@ -85,12 +85,12 @@ function SplitExpense({ selectedExpense, onSave, onCancel }) {
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-white">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-5 sm:px-8 py-5 sm:py-6 text-white">
         <div className="flex items-center gap-3 mb-2">
-          <Calculator className="w-6 h-6" />
-          <h2 className="text-2xl font-bold">Split Expense</h2>
+          <Calculator className="w-6 h-6 shrink-0" />
+          <h2 className="text-xl sm:text-2xl font-bold">Split Expense</h2>
         </div>
-        <h3 className="text-xl font-semibold opacity-90">
+        <h3 className="text-lg sm:text-xl font-semibold opacity-90">
           {selectedExpense.title}
         </h3>
         {selectedExpense.description && (
@@ -99,7 +99,7 @@ function SplitExpense({ selectedExpense, onSave, onCancel }) {
       </div>
 
       {/* Body */}
-      <div className="px-8 py-6 space-y-6">
+      <div className="px-5 sm:px-8 py-6 space-y-6">
         {/* Total */}
         <div className="bg-gray-50 rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">

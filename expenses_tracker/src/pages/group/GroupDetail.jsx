@@ -1,5 +1,5 @@
 // src/pages/group/GroupDetail.jsx
-import NavSidebar from "../../components/NavSidebar";
+import AppLayout from "../../components/AppLayout";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import GroupExpenses from "./GroupExpenses";
@@ -50,13 +50,9 @@ function GroupDetail() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-gradient-to-tr from-green-200 via-cyan-100 to-indigo-200">
-      <div className="fixed top-0 left-0 h-screen">
-        <NavSidebar />
-      </div>
-      <main className="flex-1 ml-64 p-8 min-h-screen overflow-y-auto">
+    <AppLayout bgClassName="bg-gradient-to-tr from-green-200 via-cyan-100 to-indigo-200">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight mb-6">
             Group Details
           </h1>
 
@@ -65,9 +61,9 @@ function GroupDetail() {
               Group not found
             </div>
           ) : (
-            <div className="bg-white shadow-xl rounded-2xl p-8 min-h-[550px]">
-              <div className="flex items-center gap-6 mb-8">
-                <div className="w-20 h-20 rounded-full bg-sky-100 flex items-center justify-center text-2xl font-bold text-sky-700 border-4 border-sky-200 shadow">
+            <div className="bg-white shadow-xl rounded-2xl p-5 sm:p-8 min-h-[550px]">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 mb-8">
+                <div className="w-20 h-20 shrink-0 rounded-full bg-sky-100 flex items-center justify-center text-2xl font-bold text-sky-700 border-4 border-sky-200 shadow">
                   {group.icon && group.icon !== "/placeholder.png" ? (
                     <img
                       src={group.icon}
@@ -78,8 +74,8 @@ function GroupDetail() {
                     group.name.charAt(0).toUpperCase()
                   )}
                 </div>
-                <div>
-                  <h2 className="text-2xl font-semibold text-sky-800 capitalize">
+                <div className="min-w-0">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-sky-800 capitalize">
                     {group.name}
                   </h2>
                   <p className="text-slate-600 mt-1">
@@ -94,12 +90,12 @@ function GroupDetail() {
                 </div>
               </div>
 
-              <div className="flex gap-4 border-b border-slate-200 mb-6">
+              <div className="flex gap-1 sm:gap-4 border-b border-slate-200 mb-6 overflow-x-auto">
                 {TABS.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`py-2 px-4 transition font-medium text-base rounded-t-lg ${
+                    className={`py-2 px-3 sm:px-4 whitespace-nowrap transition font-medium text-sm sm:text-base rounded-t-lg ${
                       activeTab === tab.key
                         ? "bg-sky-100 text-sky-700 border-b-2 border-sky-500"
                         : "text-slate-400 hover:text-sky-600 hover:bg-slate-100"
@@ -269,8 +265,7 @@ function GroupDetail() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+    </AppLayout>
   );
 }
 

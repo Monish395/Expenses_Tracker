@@ -1,7 +1,7 @@
 // src/pages/budget/GroupBudgetList.jsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import NavSidebar from "../../components/NavSidebar";
+import AppLayout from "../../components/AppLayout";
 import API from "../../services/API";
 
 function GroupBudgetList() {
@@ -29,19 +29,14 @@ function GroupBudgetList() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-purple-50 via-purple-100 to-purple-200">
-      <aside className="fixed top-0 left-0 h-screen w-64 bg-slate-900/95 backdrop-blur-md border-r border-slate-800 z-20">
-        <NavSidebar />
-      </aside>
-
-      <main className="flex-1 ml-64 min-h-screen overflow-y-auto p-10">
+    <AppLayout bgClassName="bg-gradient-to-br from-purple-50 via-purple-100 to-purple-200">
         <div className="w-full max-w-4xl mx-auto">
           {/* Header Section */}
-          <div className="mb-10">
-            <h2 className="text-4xl font-bold text-purple-900 mb-2 tracking-tight">
+          <div className="mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-900 mb-2 tracking-tight">
               Your Groups
             </h2>
-            <p className="text-purple-700 text-lg">
+            <p className="text-purple-700 text-base sm:text-lg">
               Manage and view all your group budgets
             </p>
           </div>
@@ -125,8 +120,7 @@ function GroupBudgetList() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+    </AppLayout>
   );
 }
 

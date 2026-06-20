@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import NavSidebar from "../../components/NavSidebar";
+import AppLayout from "../../components/AppLayout";
 import API from "../../services/API";
 
 // helper to generate group code
@@ -176,21 +176,14 @@ function CreateGroup() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-teal-100">
-      {/* Sidebar */}
-      <div className="fixed top-0 left-0 h-screen">
-        <NavSidebar />
-      </div>
-
-      {/* Main */}
-      <main className="flex-1 ml-64 p-8 min-h-screen overflow-y-auto">
-        <h2 className="text-4xl font-extrabold text-center text-teal-800 mb-6 tracking-wide">
+    <AppLayout bgClassName="bg-teal-100">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-center text-teal-800 mb-6 tracking-wide">
           Create / Join Group
         </h2>
 
         {/* Create Group Form */}
         <div className="flex justify-center">
-          <div className="bg-white p-8 rounded-2xl shadow-lg w-3xl border-t-4 border-teal-500">
+          <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-lg w-full max-w-3xl border-t-4 border-teal-500">
             <h3 className="text-xl font-bold text-teal-700 mb-5 uppercase">
               Create Group
             </h3>
@@ -231,7 +224,7 @@ function CreateGroup() {
                 <label className="text-teal-700 font-medium text-sm">
                   Add Members (by username)
                 </label>
-                <div className="flex gap-2 mt-1">
+                <div className="flex flex-col sm:flex-row gap-2 mt-1">
                   <input
                     list="membersList"
                     value={memberName}
@@ -246,7 +239,7 @@ function CreateGroup() {
                   <button
                     type="button"
                     onClick={handleAddMember}
-                    className="bg-teal-600 text-white px-4 rounded hover:bg-teal-700 transition"
+                    className="bg-teal-600 text-white px-4 py-2 sm:py-0 rounded hover:bg-teal-700 transition"
                   >
                     Add
                   </button>
@@ -295,8 +288,8 @@ function CreateGroup() {
 
         {/* Join Modal */}
         {showJoinModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white p-7 rounded-xl shadow-2xl w-96 border-t-4 border-teal-500">
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white p-6 sm:p-7 rounded-xl shadow-2xl w-full max-w-sm border-t-4 border-teal-500">
               <h3 className="text-xl font-bold mb-4 text-teal-700">
                 Join Group
               </h3>
@@ -327,8 +320,7 @@ function CreateGroup() {
             </div>
           </div>
         )}
-      </main>
-    </div>
+    </AppLayout>
   );
 }
 

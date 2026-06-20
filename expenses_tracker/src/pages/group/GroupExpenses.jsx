@@ -7,6 +7,63 @@ import Modal from "../../components/Modal";
 import { calculateExpense } from "../../utils/calculateExpense";
 import API from "../../services/API";
 
+// Mobile card for a single group expense. No hover affordance exists on
+// touch, so the three actions (edit/split/delete) are always-visible icon
+// buttons rather than appearing on hover like the desktop table row does.
+// The card itself stays tappable to open the view-details modal, same as
+// clicking a table row on desktop.
+function GroupExpenseCard({ expense, index, onView, onEdit, onSplit, onDelete }) {
+  const formatted = expense.createdAt
+    ? new Date(expense.createdAt).toLocaleDateString("en-GB")
+    : "Not specified";
+
+  return (
+    <div
+      onClick={onView}
+      className="bg-white rounded-lg border border-emerald-200 shadow-sm p-4 flex flex-col gap-2 cursor-pointer active:bg-emerald-50"
+    >
+      <div className="flex justify-between items-start gap-3">
+        <div className="min-w-0">
+          <p className="font-semibold text-gray-900 truncate">
+            {expense.title}
+          </p>
+          <p className="text-sm text-gray-500">{formatted}</p>
+        </div>
+        <p className="font-bold text-emerald-800 text-lg shrink-0">
+          ₹{expense.amount}
+        </p>
+      </div>
+
+      <div
+        className="flex justify-end gap-1 pt-1 -mb-1 -mr-1"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onEdit}
+          className="p-2 rounded-full text-emerald-600 hover:bg-emerald-100 active:bg-emerald-200"
+          aria-label="Edit expense"
+        >
+          <Pencil size={18} />
+        </button>
+        <button
+          onClick={onSplit}
+          className="p-2 rounded-full text-sky-600 hover:bg-sky-100 active:bg-sky-200"
+          aria-label="Split expense"
+        >
+          <Divide size={18} />
+        </button>
+        <button
+          onClick={onDelete}
+          className="p-2 rounded-full text-red-600 hover:bg-red-100 active:bg-red-200"
+          aria-label="Delete expense"
+        >
+          <Trash2 size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function GroupExpenses({ groupMembers, groupId, onExpensesChange }) {
   // const [expenses, setExpenses] = useState(() => {
   //   const stored = JSON.parse(localStorage.getItem("expenses")) || [];
@@ -117,7 +174,7 @@ function GroupExpenses({ groupMembers, groupId, onExpensesChange }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-emerald-700 mb-2">
           Group Expenses
         </h2>
@@ -134,9 +191,28 @@ function GroupExpenses({ groupMembers, groupId, onExpensesChange }) {
       ) : (
         <>
           <p className="text-slate-500 text-sm mb-2">
-            Click on an expense for more details
+            {/* "Click to view" only makes sense once there's something to
+                click in the table; the mobile copy below covers cards too */}
+            Tap an expense for more details
           </p>
-          <table className="w-full border-collapse rounded-lg overflow-hidden border border-emerald-800">
+
+          {/* Mobile / tablet: stacked cards */}
+          <div className="flex flex-col gap-3 md:hidden">
+            {expenses.map((exp, idx) => (
+              <GroupExpenseCard
+                key={exp.id}
+                expense={exp}
+                index={idx}
+                onView={() => handleViewClick(exp)}
+                onEdit={() => handleEditClick(exp)}
+                onSplit={() => handleSplitClick(exp)}
+                onDelete={() => handleDeleteClick(exp)}
+              />
+            ))}
+          </div>
+
+          {/* Desktop: full table */}
+          <table className="hidden md:table w-full border-collapse rounded-lg overflow-hidden border border-emerald-800">
             <thead className="bg-emerald-100">
               <tr>
                 <th className="p-2 text-center">#</th>

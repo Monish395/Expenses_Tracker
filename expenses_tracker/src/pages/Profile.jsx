@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import NavSidebar from "../components/NavSidebar";
+import AppLayout from "../components/AppLayout";
 import API from "../services/API";
 
 const DEFAULT_AVATAR =
@@ -172,26 +172,21 @@ function Profile() {
   const badge = badgeConfig[storedUser.authProvider] || badgeConfig.local;
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-100">
-      <div className="fixed top-0 left-0 h-screen">
-        <NavSidebar />
-      </div>
-
-      <main className="flex-1 ml-64 p-8 min-h-screen overflow-y-auto">
+    <AppLayout bgClassName="bg-slate-100">
         {/* ── Page header ──────────────────────────────────────────────────── */}
-        <h2 className="text-3xl font-bold text-slate-900 mb-8">Profile</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-6 sm:mb-8">Profile</h2>
 
         {/* ── Profile card ─────────────────────────────────────────────────── */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
           {/* Banner strip */}
-          <div className="h-28 bg-gradient-to-r from-slate-800 to-slate-600 relative" />
+          <div className="h-20 sm:h-28 bg-gradient-to-r from-slate-800 to-slate-600 relative" />
 
           {/* Avatar — overlaps banner */}
-          <div className="px-8 pb-6">
-            <div className="flex items-end justify-between -mt-14 mb-5">
-              <div className="relative group">
+          <div className="px-4 sm:px-8 pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-10 sm:-mt-14 mb-5">
+              <div className="relative group self-start">
                 <img
-                  className="w-28 h-28 rounded-full border-4 border-white shadow-lg object-cover"
+                  className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-white shadow-lg object-cover"
                   src={avatarSrc}
                   alt="Profile"
                   onError={(e) => {
@@ -234,8 +229,8 @@ function Profile() {
                 </button>
               </div>
 
-              {/* Action buttons top-right */}
-              <div className="flex gap-2 flex-wrap justify-end">
+              {/* Action buttons */}
+              <div className="flex gap-2 flex-wrap justify-start sm:justify-end">
                 <button
                   onClick={() => {
                     setEditForm({
@@ -360,7 +355,7 @@ function Profile() {
         </div>
 
         {/* ── Danger Zone ──────────────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-red-100 p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-red-100 p-4 sm:p-6">
           <div className="flex items-start gap-4">
             <div className="p-2 bg-red-50 rounded-lg mt-0.5">
               <svg
@@ -684,8 +679,7 @@ function Profile() {
             </div>
           </Modal>
         )}
-      </main>
-    </div>
+    </AppLayout>
   );
 }
 

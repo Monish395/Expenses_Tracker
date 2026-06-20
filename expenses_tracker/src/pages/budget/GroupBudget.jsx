@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import NavSidebar from "../../components/NavSidebar";
+import AppLayout from "../../components/AppLayout";
 import API from "../../services/API";
 
 import {
@@ -157,15 +157,10 @@ function GroupBudget() {
   })();
 
   return (
-    <div className="flex min-h-screen bg-purple-100">
-      <aside className="fixed top-0 left-0 h-screen w-64 bg-slate-900 z-20">
-        <NavSidebar />
-      </aside>
-
-      <main className="flex-1 ml-64 min-h-screen overflow-y-auto p-8">
+    <AppLayout bgClassName="bg-purple-100">
         <div className="w-full max-w-xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-purple-900">
+          <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-purple-900">
               {group?.name}'s Budget Plan
             </h2>
             {budgetData && (
@@ -180,7 +175,7 @@ function GroupBudget() {
 
           {/* Edit / Set Budget Form */}
           {(!budgetData || editing) && (
-            <div className="bg-white shadow-lg rounded-2xl p-6 w-full mb-6">
+            <div className="bg-white shadow-lg rounded-2xl p-5 sm:p-6 w-full mb-6">
               <form onSubmit={handleSetBudget} className="space-y-6">
                 <div>
                   <label className="block font-medium text-purple-800">
@@ -198,7 +193,7 @@ function GroupBudget() {
                   <h3 className="font-medium text-purple-800">
                     Select Interval
                   </h3>
-                  <div className="flex gap-6 mt-2">
+                  <div className="flex flex-wrap gap-4 sm:gap-6 mt-2">
                     {["weekly", "monthly", "yearly"].map((opt) => (
                       <label key={opt} className="flex items-center gap-2">
                         <input
@@ -225,7 +220,7 @@ function GroupBudget() {
 
           {/* Budget Display */}
           {budgetData && !editing && (
-            <div className="bg-white shadow-lg rounded-2xl p-6 w-full space-y-6">
+            <div className="bg-white shadow-lg rounded-2xl p-5 sm:p-6 w-full space-y-6">
               <p>
                 <span className="font-semibold">Budget:</span> ₹
                 {budgetData.amount} / {budgetData.interval}
@@ -277,7 +272,7 @@ function GroupBudget() {
                 )}
               </div>
 
-              <div className="flex justify-between text-purple-900 font-medium">
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-purple-900 font-medium">
                 <p>Daily Avg: ₹{dailyAvg}</p>
                 <p>Daily Recommended: ₹{dailyRecommended}</p>
               </div>
@@ -311,8 +306,7 @@ function GroupBudget() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+    </AppLayout>
   );
 }
 
