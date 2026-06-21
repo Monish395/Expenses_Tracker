@@ -57,23 +57,43 @@ function NavSidebar() {
   const location = useLocation();
   const railRef = useRef(null);
 
-  // expanded = full width with labels. Collapsed = icon-only rail.
-  // Defaults open on large screens, closed on small ones.
-  const [expanded, setExpanded] = useState(
+  // isDesktop drives the *mode*: at lg+ the sidebar is always expanded and
+  // pushes content (no overlay, no manual toggle — there's room for it).
+  // Below lg it behaves like a mobile drawer: starts collapsed, expands on
+  // tap, overlays the page with a backdrop, and auto-closes on navigation
+  // or outside-tap. This also covers a desktop browser window resized
+  // narrow for side-by-side use — it falls back to the same drawer mode.
+  const [isDesktop, setIsDesktop] = useState(
     typeof window !== "undefined" ? window.innerWidth >= 1024 : true,
   );
+
+  // expandedMobile only matters below lg; on desktop we ignore it and
+  // render expanded unconditionally.
+  const [expandedMobile, setExpandedMobile] = useState(false);
+  const expanded = isDesktop || expandedMobile;
+
   const [openSection, setOpenSection] = useState(
     SECTIONS.find((s) => s.match.includes(location.pathname))?.key ?? null,
   );
 
-  // Collapse automatically on outside tap when in the mobile-style
-  // (overlay) mode, i.e. below lg. On lg+ the rail pushes content instead
-  // of overlaying it, so we don't auto-collapse there.
+  // Track live whether we're at the desktop breakpoint, so dragging a
+  // browser window narrower switches modes without a page reload.
+  useEffect(() => {
+    function handleResize() {
+      const desktop = window.innerWidth >= 1024;
+      setIsDesktop(desktop);
+      if (desktop) setExpandedMobile(false); // reset so re-shrinking starts collapsed
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Collapse automatically on outside tap — drawer mode only.
   useEffect(() => {
     function handleClickOutside(e) {
-      if (window.innerWidth >= 1024) return;
+      if (isDesktop) return;
       if (railRef.current && !railRef.current.contains(e.target)) {
-        setExpanded(false);
+        setExpandedMobile(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -82,25 +102,25 @@ function NavSidebar() {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, []);
+  }, [isDesktop]);
 
-  // Close the rail after navigating, on small screens only.
+  // Close the drawer after navigating — drawer mode only.
   const handleNavigate = () => {
-    if (window.innerWidth < 1024) setExpanded(false);
+    if (!isDesktop) setExpandedMobile(false);
   };
 
   const toggleSection = (key) => {
     setOpenSection((cur) => (cur === key ? null : key));
-    if (!expanded) setExpanded(true);
+    if (!isDesktop && !expandedMobile) setExpandedMobile(true);
   };
 
   return (
     <>
-      {/* Backdrop overlay, mobile/tablet only, while expanded */}
-      {expanded && (
+      {/* Backdrop overlay — drawer mode only, while expanded */}
+      {!isDesktop && expandedMobile && (
         <div
           className="fixed inset-0 bg-black/30 z-30 lg:hidden"
-          onClick={() => setExpanded(false)}
+          onClick={() => setExpandedMobile(false)}
           aria-hidden="true"
         />
       )}
@@ -112,7 +132,9 @@ function NavSidebar() {
         }`}
       >
         <div className="min-w-[16rem]">
-          {/* Header / brand + toggle */}
+          {/* Header / brand + toggle. Toggle only shown below lg — on
+              desktop the sidebar is always expanded, so there's nothing
+              to toggle. */}
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2">
             <Link
               to="/home"
@@ -126,13 +148,15 @@ function NavSidebar() {
                 </h2>
               )}
             </Link>
-            <button
-              onClick={() => setExpanded((e) => !e)}
-              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0"
-              aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
-            >
-              <Bars3Icon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-            </button>
+            {!isDesktop && (
+              <button
+                onClick={() => setExpandedMobile((e) => !e)}
+                className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0"
+                aria-label={expandedMobile ? "Collapse sidebar" : "Expand sidebar"}
+              >
+                <Bars3Icon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              </button>
+            )}
           </div>
 
           <nav className="flex flex-col gap-2 p-4 text-gray-800 dark:text-white">
