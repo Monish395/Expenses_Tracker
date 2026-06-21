@@ -84,13 +84,13 @@ function Register() {
   }
 
   return (
-    <div style={bg_style}>
+    <div style={bg_style} className="px-4 py-8">
       <div className="flex items-center justify-center min-h-screen">
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-10 rounded-2xl shadow-xl w-[430px] space-y-7 border border-zinc-200"
+          className="bg-white p-6 sm:p-10 rounded-2xl shadow-xl w-full max-w-[430px] space-y-6 sm:space-y-7 border border-zinc-200"
         >
-          <h1 className="text-2xl font-bold text-center text-black mb-3 tracking-tight uppercase">
+          <h1 className="text-xl sm:text-2xl font-bold text-center text-black mb-3 tracking-tight uppercase">
             Welcome to Expenses Tracker
           </h1>
 

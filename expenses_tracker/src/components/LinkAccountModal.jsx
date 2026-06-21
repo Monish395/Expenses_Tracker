@@ -56,6 +56,7 @@ function LinkAccountModal({ pendingLink, onSuccess, onClose }) {
         justifyContent: "center",
         zIndex: 50,
         fontFamily: "Inter, 'Segoe UI', Arial, sans-serif",
+        padding: "1rem",
       }}
     >
       {/* Modal card — stop click from bubbling to backdrop */}
@@ -64,9 +65,11 @@ function LinkAccountModal({ pendingLink, onSuccess, onClose }) {
         style={{
           background: "white",
           borderRadius: "1.5rem",
-          padding: "2.5rem",
+          padding: "1.75rem",
           width: "100%",
           maxWidth: "420px",
+          maxHeight: "90vh",
+          overflowY: "auto",
           boxShadow: "0 25px 60px rgba(0,0,0,0.18)",
           display: "flex",
           flexDirection: "column",

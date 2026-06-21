@@ -84,13 +84,13 @@ function Login() {
   }
 
   return (
-    <div style={bg_style}>
-      <div className="w-full max-w-md space-y-10">
+    <div style={bg_style} className="px-4 py-8">
+      <div className="w-full max-w-md space-y-6 sm:space-y-10">
         <form
           onSubmit={handleSubmit}
-          className="bg-white border border-black/10 rounded-3xl shadow-2xl p-10 space-y-7 ring-1 ring-black/5 hover:scale-[1.01] transition-transform"
+          className="bg-white border border-black/10 rounded-3xl shadow-2xl p-6 sm:p-10 space-y-6 sm:space-y-7 ring-1 ring-black/5 hover:scale-[1.01] transition-transform"
         >
-          <h1 className="text-3xl text-center text-black tracking-tighter uppercase">
+          <h1 className="text-2xl sm:text-3xl text-center text-black tracking-tighter uppercase">
             Sign In
           </h1>
 
@@ -178,7 +178,7 @@ function Login() {
           </button>
         </form>
 
-        <div className="bg-white border border-black/10 p-8 rounded-3xl shadow-xl flex flex-col items-center space-y-4">
+        <div className="bg-white border border-black/10 p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col items-center space-y-4">
           <h2 className="text-lg font-semibold text-center text-black tracking-wide">
             Don't have an account?
           </h2>
